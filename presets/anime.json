@@ -1,51 +1,23 @@
-{
-    "default_model": "animaPencilXL_v100.safetensors",
-    "default_refiner": "None",
-    "default_refiner_switch": 0.5,
-    "default_loras": [
-        [
-            true,
-            "None",
-            1.0
-        ],
-        [
-            true,
-            "None",
-            1.0
-        ],
-        [
-            true,
-            "None",
-            1.0
-        ],
-        [
-            true,
-            "None",
-            1.0
-        ],
-        [
-            true,
-            "None",
-            1.0
-        ]
-    ],
-    "default_cfg_scale": 7.0,
-    "default_sample_sharpness": 2.0,
-    "default_sampler": "dpmpp_2m_sde_gpu",
-    "default_scheduler": "karras",
-    "default_performance": "Speed",
-    "default_prompt": "",
-    "default_prompt_negative": "",
-    "default_styles": [
-        "Fooocus V2",
-        "Fooocus Semi Realistic",
-        "Fooocus Masterpiece"
-    ],
-    "default_aspect_ratio": "896*1152",
-    "checkpoint_downloads": {
-        "animaPencilXL_v100.safetensors": "https://huggingface.co/lllyasviel/fav_models/resolve/main/fav/animaPencilXL_v100.safetensors"
-    },
-    "embeddings_downloads": {},
-    "lora_downloads": {},
-    "previous_default_models": []
-}
+import torch
+from diffusers import DiffusionPipeline
+
+pipe = DiffusionPipeline.from_pretrained(
+    "cagliostrolab/animagine-xl-3.1", 
+    torch_dtype=torch.float16, 
+    use_safetensors=True, 
+)
+pipe.to('cuda')
+
+prompt = "1girl, souryuu asuka langley, neon genesis evangelion, solo, upper body, v, smile, looking at viewer, outdoors, night"
+negative_prompt = "nsfw, lowres, (bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract]"
+
+image = pipe(
+    prompt, 
+    negative_prompt=negative_prompt,
+    width=832,
+    height=1216, 
+    guidance_scale=7,
+    num_inference_steps=28
+).images[0]
+
+image.save("./output/asuka_test.png")
